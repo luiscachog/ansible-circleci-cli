@@ -5,8 +5,8 @@
   pre_tasks:
     - name: Print role name
       debug:
-        msg: "Applying role ansible-create-user"
+        msg: "Applying role ansible-circleci-cli"
         verbosity: "{{ debug_verbosity_test }}"
       changed_when: false
   roles:
-    - role: ansible-create-user
+    - role: ansible-circleci-cli
