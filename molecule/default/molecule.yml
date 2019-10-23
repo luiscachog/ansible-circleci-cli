@@ -1,0 +1,82 @@
+---
+dependency:
+  name: galaxy
+
+driver:
+  name: docker
+
+lint:
+  name: yamllint
+  options:
+    config-file: yamllint.yml
+
+platforms:
+  - name: instance-manjaro
+    hostname: manjaro
+    image: jonathonf/manjaro:latest
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+      - /var/lib/docker
+    command: /lib/systemd/systemd
+    privileged: true
+
+  - name: instance-1804
+    hostname: ubuntu-1804
+    image: ubuntu:bionic
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+      - /var/lib/docker
+    privileged: true
+
+provisioner:
+  name: ansible
+  log: true
+  options:
+    vvv: true
+  config_options:
+    defaults:
+      strategy_plugins: ../../plugins/mitogen/ansible_mitogen/plugins/strategy
+      # strategy: mitogen_linear
+      retry_files_enabled: false
+      stdout_callback: skippy
+      callback_whitelist: profile_tasks
+      fact_caching: jsonfile
+      fact_caching_connection: /tmp
+    ssh_connection:
+      pipelining: true
+      ssh_args: -C -o ForwardAgent=yes -o StrictHostKeyChecking=no -o ControlMaster=auto -o ControlPersist=15m -o ConnectionAttempts=100 -o UserKnownHostsFile=/dev/null
+      control_path: /tmp/ansible-ssh-%%h-%%p-%%r
+  callback_profile_tasks:
+    task_output_limit: 50
+    sort_order: ascending
+  lint:
+    name: ansible-lint
+
+scenario:
+  name: default
+  test_sequence:
+    - lint
+    - destroy
+    - dependency
+    - syntax
+    - create
+    - prepare
+    - converge
+    - idempotence
+    - side_effect
+    - verify
+    - destroy
+
+verifier:
+  name: testinfra
+  directory: ../../tests/
+  options:
+    # cache-clear: true
+    vvv: false
+    verbose: false
+    verbosity: 7
+    sudo: true
+  lint:
+    name: flake8
+    options:
+      max-line-length: 120

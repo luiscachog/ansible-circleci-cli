@@ -1,0 +1,38 @@
+---
+language: python
+python: 3.6
+services:
+  - docker
+
+branches:
+  only:
+    - master
+    - devel
+    - test
+
+env:
+  global:
+    - ROLE_NAME: ansible-create-user
+  matrix:
+    - MOLECULE_DISTRO: ubuntu:18.04
+    - MOLECULE_DISTRO: linuxmintd/mint19-amd64
+    - MOLECULE_DISTRO: archlinux/base
+    - MOLECULE_DISTRO: jonathonf/manjaro
+
+install:
+  # Install test dependencies.
+  - pip install --upgrade pip
+  - pip install -r requirements.txt
+
+script:
+  # Run tests.
+  - molecule test -s test-ci
+
+after_sucess:
+  - bash <(curl -s https://codecov.io/bash)
+
+notifications:
+  webhooks: https://galaxy.ansible.com/api/v1/notifications/
+  email:
+    on_success: never
+    on_failure: always

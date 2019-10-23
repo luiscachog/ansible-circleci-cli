@@ -1,0 +1,53 @@
+---
+# tasks file for ansible-circleci-cli
+
+- name: Start circleci-cli role message
+  debug:
+    msg: "Installing and configuring circleci-cli"
+    verbosity: "{{ debug_verbosity_messages | default(3) }}"
+  changed_when:
+    - false
+
+- name: Verify if directory already exists
+  stat:
+    path: '{{ circleci_download_path }}'
+  register: download_dir_stat
+
+- name: Create download directory
+  become: true
+  become_user: root
+  file:
+    path: '{{ circleci_download_path }}'
+    state: directory
+    mode: '0755'
+    recurse: true
+  when:
+    - not download_dir_stat.stat.exists
+
+- name: Download CircleCI
+  become: true
+  become_user: root
+  get_url:
+    url: '{{ circleci_url }}'
+    dest: '{{ circleci_download_path }}'
+    checksum: '{{ circleci_checksum }}'
+    mode: '0755'
+
+- name: Extract CircleCI
+  become: true
+  become_user: root
+  unarchive:
+    src: "{{ circleci_download_path }}/{{ circleci_bin }}-cli_{{ circleci_version }}_{{ circleci_os }}_{{ circleci_platform }}.tar.gz"
+    dest: "{{ circleci_download_path }}"
+    remote_src: true
+
+- name: Link/Install CircleCI binary
+  become: true
+  become_user: root
+  file:
+    src: '{{ circleci_download_path }}/{{ circleci_bin }}-cli_{{ circleci_version }}_{{ circleci_os }}_{{ circleci_platform }}/{{ circleci_bin }}'
+    dest: '{{ circleci_install_dir }}/{{ circleci_bin }}'
+    state: link
+  register: install_circleci
+  until: install_circleci is succeeded
+  retries: 3

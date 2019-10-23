@@ -1,0 +1,14 @@
+---
+# defaults file for ansible-circleci-cli
+circleci_version: 0.1.5879
+circleci_platform: amd64
+
+circleci_download_url: https://github.com/CircleCI-Public/circleci-cli/releases/download
+
+circleci_download_dir: /opt/circleci
+circleci_install_dir: /usr/local/bin
+
+circleci_checksums:
+  0.1.5879:
+    linux:
+      amd64: sha256:f178ea62c781aec06267017404f87983c87f171fd0e66ef3737916246ae66dd6

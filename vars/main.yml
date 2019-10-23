@@ -1,0 +1,15 @@
+---
+# vars file for ansible-circleci-cli
+
+debug_verbosity_test: 3
+debug_verbosity_messages: 1
+
+debug_mode: true
+testing_mode: true
+
+circleci_os: '{{ ansible_system|lower }}'
+circleci_bin: circleci{{ circleci_suffix|default("") }}
+circleci_url: '{{ circleci_download_url }}/v{{ circleci_version }}/circleci-cli_{{ circleci_version }}_{{ circleci_os}}_{{ circleci_platform }}.tar.gz'
+circleci_download_path: '{{ circleci_download_dir }}/{{ circleci_bin }}-{{ circleci_version }}'
+circleci_install_path: '{{ circleci_install_dir }}/{{ circleci_bin }}-{{ circleci_version }}'
+circleci_checksum: '{{ circleci_checksums[circleci_version][circleci_os][circleci_platform] }}'

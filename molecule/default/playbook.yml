@@ -1,0 +1,15 @@
+---
+- name: Converge
+  hosts: all
+
+  vars_files:
+    - ../../../../defaults.yml
+
+  pre_tasks:
+    - name: Print role name
+      debug:
+        msg: "Applying role ansible-create-user"
+        verbosity: "{{ debug_verbosity_test }}"
+      changed_when: false
+  roles:
+    - role: ansible-circleci-cli
