@@ -12,7 +12,7 @@ branches:
 
 env:
   global:
-    - ROLE_NAME: ansible-create-user
+    - ROLE_NAME: ansible-circleci-cli
   matrix:
     - MOLECULE_DISTRO: ubuntu:18.04
     - MOLECULE_DISTRO: linuxmintd/mint19-amd64
