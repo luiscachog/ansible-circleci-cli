@@ -2,7 +2,7 @@
 galaxy_info:
   role_name: circleci-cli
   author: Luis Cacho
-  description: Role to install CircleCI CLI on a linux workstation
+  description: Installs CircleCI cli on a Linux workstation
   company: Rackspace
 
   # If the issue tracker for your role is not on github, uncomment the
@@ -28,15 +28,9 @@ galaxy_info:
   # platforms is a list of platforms, and each platform has a name and a list of versions.
   #
   platforms:
-    - name: Linux Mint
-      versions:
-        - 19
     - name: Ubuntu
       versions:
         - 18.04
-    - name: Manjaro
-      versions:
-        - all
     - name: Archlinux
       versions:
         - all
