@@ -8,7 +8,7 @@ docker-py==1.10.6
 flake8==3.7.7
 Jinja2==2.10
 jinja2-time==0.2.0
-PyYAML==3.13
+PyYAML==5.1
 six==1.11.0
 cryptography>=1.5
 requests>=2.18.0
