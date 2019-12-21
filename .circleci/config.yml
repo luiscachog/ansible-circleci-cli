@@ -1,0 +1,162 @@
+---
+# Orb 'codecov/codecov@1.0.5' resolved to 'codecov/codecov@1.0.5'
+version: 2
+
+jobs:
+  build:
+    docker:
+      - image: circleci/python:3.6.7
+    environment:
+      - DISTRO: linuxmintd/mint19-amd64
+    steps:
+      - checkout
+      - run:
+          command: git submodule sync
+      - run:
+          command: git submodule update --init
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - run:
+          name: Install dependencies
+          command: |
+              if [[ $CIRCLE_SHELL_ENV == *"localbuild"* ]]; then
+                echo "This is a local build. Enabling sudo for docker"
+                echo sudo > ~/sudo
+              else
+                echo "This is not a local build. Disabling sudo for docker"
+                touch ~/sudo
+              fi
+
+              python3 -m venv env
+              . env/bin/activate
+              pip install --upgrade pip
+              pip install -r requirements.txt
+              pip install codecov
+              pip install mitogen
+              eval `cat ~/sudo` docker pull $DISTRO
+              cd roles/meta-fulltest
+              eval `cat ~/sudo` molecule test -s test-ci
+        # - run:
+        #     name: Test dependencies installation
+        #     command: |
+        #       . env/bin/activate
+        #       ansible --version
+        #       molecule --version
+        #       # sleep 60m
+        # - run:
+        #     name: Run Molecule
+        #     command: |
+        #       if [[ $CIRCLE_SHELL_ENV == *"localbuild"* ]]; then
+        #         echo "This is a local build. Enabling sudo for docker"
+        #         echo sudo > ~/sudo
+        #       else
+        #         echo "This is not a local build. Disabling sudo for docker"
+        #         touch ~/sudo
+        #       fi
+        #       . env/bin/activate
+        #       cd roles/meta-fulltest
+        #       molecule test -s test-ci
+workflows:
+  version: 2
+  on-commit:
+    jobs:
+      - build
+  weekly-schedule:
+    triggers:
+      - schedule:
+        cron: 00 10 * * 1
+        filters:
+          branches:
+            only:
+              - master
+    jobs:
+      - build
+
+
+# Original config.yml file:
+# version: 2.1
+#
+# orbs:
+#   codecov: codecov/codecov@1.0.5
+# jobs:
+#   build:
+#     docker:
+#       - image: \"circleci/python:3.6.7\"
+#
+#     environment:
+#       DISTRO: linuxmintd/mint19-amd64
+#
+#     steps:
+#       - checkout
+#       - run: git submodule sync
+#       - run: git submodule update --init
+#
+#       - setup_remote_docker:
+#           docker_layer_caching: true
+#
+#       # - restore_cache:
+#       #     keys:
+#       #     - deps-{{ checksum \"requirements.txt\" }}
+#
+#       - run:
+#           name: Install dependencies
+#           command: |
+#             if [[ $CIRCLE_SHELL_ENV == *\"localbuild\"* ]]; then
+#               echo \"This is a local build. Enabling sudo for docker\"
+#               echo sudo > ~/sudo
+#             else
+#               echo \"This is not a local build. Disabling sudo for docker\"
+#               touch ~/sudo
+#             fi
+#
+#             python3 -m venv env
+#             . env/bin/activate
+#             pip install --upgrade pip
+#             pip install -r requirements.txt
+#             pip install codecov
+#             pip install mitogen
+#             eval `cat ~/sudo`  docker pull $DISTRO
+#
+#       # - save_cache:
+#       #     key: deps-{{ checksum \"requirements.txt\" }}
+#       #     paths:
+#       #         - \"env\"
+#
+#       - run:
+#           name: Test dependencies installation
+#           command: |
+#             . env/bin/activate
+#             ansible --version
+#             molecule --version
+#             # sleep 60m
+#
+#       - run:
+#           name: Run Molecule
+#           command: |
+#             if [[ $CIRCLE_SHELL_ENV == *\"localbuild\"* ]]; then
+#               echo \"This is a local build. Enabling sudo for docker\"
+#               echo sudo > ~/sudo
+#             else
+#               echo \"This is not a local build. Disabling sudo for docker\"
+#               touch ~/sudo
+#             fi
+#             . env/bin/activate
+#             cd roles/meta-fulltest
+#             molecule test -s test-ci
+#
+# workflows:
+#   version: 2
+#   on-commit:
+#     jobs:
+#       - build
+#
+#   weekly-schedule:
+#     triggers:
+#       - schedule:
+#           cron: \"00 10 * * 1\" # 10:00 every monday (see https://crontab.guru/)
+#           filters:
+#             branches:
+#               only:
+#                 - master
+#     jobs:
+#       - build%
